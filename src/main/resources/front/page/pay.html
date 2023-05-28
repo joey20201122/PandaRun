@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=no,minimal-ui">
+    <title>Panda餐饮</title>
+    <link rel="icon" href="../images/favicon.png">
+    <!--不同屏幕尺寸根字体设置-->
+    <script src="./../js/base.js"></script>
+    <!--element-ui的样式-->
+    <link rel="stylesheet" href="../../backend/plugins/element-ui/index.css" />
+    <!-- 引入样式  -->
+    <link rel="stylesheet" href="../styles/index.css" />
+    <!--本页面内容的样式-->
+    <link rel="stylesheet" href="./../styles/pay-success.css" />
+</head>
+<body>
+<div id="pay_success" class="app">
+    <div class="divHead">
+        <div class="divTitle">
+            <i class="el-icon-arrow-left" @click="toMainPage"></i>
+            Panda餐饮
+            <i class="el-icon-circle-close" @click="cancelOrder"></i>
+        </div>
+    </div>
+    <div class="divContent">
+        <img src="./../images/payCode.png" />
+        <div class="divSuccess">请付款</div>
+        <div class="btnView" @click="pay">完成付款</div>
+    </div>
+</div>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="../../backend/plugins/vue/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="../../backend/plugins/element-ui/index.js"></script>
+<!-- 引入axios -->
+<script src="../../backend/plugins/axios/axios.min.js"></script>
+<script src="./../js/request.js"></script>
+<!--引入api-->
+<script src="./../api/order.js"></script>
+
+<script>
+    new Vue({
+        el:"#pay_success",
+        data(){
+            return {
+                orderId:0
+            }
+        },
+        computed:{},
+        created(){
+            this.orderId = JSON.parse(localStorage.getItem('payOrderId'))
+        },
+        mounted(){},
+        methods:{
+            toMainPage(){
+                localStorage.removeItem('payOrderId')
+                window.requestAnimationFrame(()=>{
+                    window.location.replace('/front/index.html')
+                })
+            },
+            async cancelOrder(){
+                const res =  await cancelOrderApi(this.orderId)
+
+                if (res.code === 1){
+                    localStorage.removeItem('payOrderId')
+                    window.requestAnimationFrame(()=>{
+                        window.location.replace('/front/index.html')
+                    })
+                }else {
+                    this.$notify({ type:'warning', message:res.msg});
+                }
+            },
+            async pay(){
+                const res = await payOrderApi(this.orderId)
+                if (res.code === 1){
+                    window.requestAnimationFrame(()=>{
+                        window.location.replace('/front/page/pay-success.html')
+                    })
+                } else {
+                    this.$notify({ type:'warning', message:res.msg});
+                }
+            },
+
+
+        }
+    })
+</script>
+</body>
+</html>

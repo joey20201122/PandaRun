@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="../../../plugins/element-ui/index.css" />
+  <link rel="stylesheet" href="../../../styles/common.css" />
+  <link rel="stylesheet" href="../../../styles/page.css" />
+  <style>
+    #member-app  .notAdmin::after{
+      border: 0 !important;
+
+    }
+  </style>
+</head>
+
+<body>
+<div class="dashboard-container" id="member-app">
+  <div class="container">
+    <div class="tableBar">
+
+      <el-select
+              v-model="dateZone"
+              placeholder="请选择统计时间区间"
+      >
+
+        <el-option v-for="(item,index) in DateList" :key="index" :label="item.name" :value="item.zone" />
+      </el-select>
+      <el-button
+              type="primary"
+              @click="handleQuery()"
+      >
+        查询数据
+      </el-button>
+      <el-button
+              type="primary"
+              @click="refreshByBusinessId()"
+      >
+        刷新数据
+      </el-button>
+
+      <div class="que" >
+        <el-tooltip class="item" effect="dark" content="财务数据非及时数据,会在服务器业务压力小时自动更新!" placement="top-start">
+          <i class="el-icon-question"></i>
+        </el-tooltip>
+      </div>
+
+    </div>
+    <el-table
+            :data="tableData"
+            stripe
+            class="tableBox"
+    >
+      <el-table-column
+              prop="dishName"
+              label="菜品名"
+      ></el-table-column>
+      <el-table-column
+              prop="sale"
+              label="销量"
+      ></el-table-column>
+      <el-table-column
+              prop="price"
+              label="价格">
+        <template slot-scope="{ row }">
+          <span>￥{{ row.price/100 }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+              prop="turnover"
+              label="销售额">
+        <template slot-scope="{ row }">
+          <span>￥{{ row.sale * row.price/100 }}</span>
+        </template>
+      </el-table-column>
+
+
+    </el-table>
+    <el-pagination
+            class="pageList"
+            :page-sizes="[10, 20, 30, 40]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="counts"
+            :current-page.sync="page"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+    ></el-pagination>
+  </div>
+</div>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="../../../plugins/vue/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="../../../plugins/element-ui/index.js"></script>
+<!-- 引入axios -->
+<script src="../../../plugins/axios/axios.min.js"></script>
+<script src="../../../js/request.js"></script>
+<script src="../../../api/member.js"></script>
+<script src="../../../api/sale.js"></script>
+<script src="../../../js/index.js"></script>
+
+<script>
+  new Vue({
+    el: '#member-app',
+    data() {
+      return {
+        businessId:0,
+        input: '',
+        counts: 0,
+        page: 1,
+        pageSize: 10,
+        tableData: [],
+        id: '',
+        status: '',
+        dateZone:30,
+        DateList:[
+          {
+            name:'月销量统计',
+            zone:30
+          },
+          {
+            name:'本月销量统计',
+            zone:31
+          },
+          {
+            name:'周销量统计',
+            zone:7
+          },
+          {
+            name:'本周销量统计',
+            zone:8
+          },
+          {
+            name:'季度销量统计',
+            zone:90
+          },
+          {
+            name:'本季度销量统计',
+            zone:91
+          },
+          {
+            name:'年度销量统计',
+            zone:365
+          },
+          {
+            name:'本年度销量统计',
+            zone:366
+          },
+        ]
+      }
+    },
+    computed: {},
+    created() {
+      this.businessId= requestUrlParam('id')
+      window.alert(this.businessId)
+      this.init()
+    },
+    mounted() {
+    },
+    methods: {
+      async init() {
+        if (this.dateZone === 30){
+          const params = {
+            page: this.page,
+            pageSize: this.pageSize,
+            businessId: this.businessId
+          }
+          await getDishSalePageApi(params).then(res => {
+            if (String(res.code) === '1') {
+              this.tableData = res.data.records || []
+              this.counts = res.data.total
+              this.$message.success('查询成功!')
+
+            }
+          }).catch(err => {
+            this.$message.error('请求出错了：' + err)
+          })
+        } else {
+          const params = {
+            page: this.page,
+            pageSize: this.pageSize,
+            businessId: this.businessId,
+            dateZone: this.dateZone
+          }
+          this.$confirm('此查询量较大，请确保业务压力较小!确认查询?', '提示', {
+            'confirmButtonText': '确定',
+            'cancelButtonText': '取消',
+            'type': 'warning'
+          }).then(() => {
+            getDishSalePageByDateApi(params).then(res => {
+              if (String(res.code) === '1') {
+                this.tableData = res.data.records || []
+                this.counts = res.data.total
+                this.$message.success('查询成功!')
+
+              }
+            }).catch(err => {
+              this.$message.error('请求出错了：' + err)
+            })
+          })
+        }
+
+      },
+      refreshByBusinessId(){
+        this.$confirm('此查询量较大，请确保业务压力较小!确认查询?', '提示', {
+          'confirmButtonText': '确定',
+          'cancelButtonText': '取消',
+          'type': 'warning'
+        }).then(() => {
+          refreshByBusinessIdApi(this.businessId).then(res => {
+            if (String(res.code) === '1') {
+              this.$message.success('刷新数据成功!')
+
+              this.init()
+            }
+          }).catch(err => {
+            this.$message.error('请求出错了：' + err)
+          })
+        })
+      },
+
+
+      handleQuery() {
+        this.page = 1;
+        this.init();
+      },
+      handleSizeChange(val) {
+        this.pageSize = val
+        this.init()
+      },
+      handleCurrentChange(val) {
+        this.page = val
+        this.init()
+      },
+    }
+  })
+
+</script>
+</body>
+</html>
