@@ -5,7 +5,10 @@ import com.joey.yx.common.R;
 import com.joey.yx.service.DaySalesService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 /**
  * @author 86180
@@ -20,6 +23,8 @@ public class SaleController {
 
     @Autowired
     private DaySalesService daySalesService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @GetMapping("/page")
     public R<Page> page (int page, int pageSize, String businessName){
@@ -60,6 +65,15 @@ public class SaleController {
     @PutMapping("/refreshView")
     public R<String> refreshView (){
         daySalesService.refreshView();
+        //
+        //清理商户缓存数据
+        Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);
+        //
+        String key = "business_list";
+        redisTemplate.delete(key);
+
+
         return R.success("更新成功");
     }
 
