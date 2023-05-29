@@ -10,10 +10,12 @@ import com.joey.yx.utils.ValidateCodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 86180
@@ -32,6 +34,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 发送验证码
      * @param user
@@ -47,7 +52,10 @@ public class UserController {
             //调用阿里云api完成短信发送
             log.info("验证码为-----"+code);
             //将生成的验证码保存起来，存到session中
-            session.setAttribute(phone,code);
+//            session.setAttribute(phone,code);
+
+            //将生成的验证码存到redis中，并且设置有效期五分钟
+            redisTemplate.opsForValue().set(phone,code,5, TimeUnit.MINUTES);
 
             return R.success(code);
         }
@@ -65,7 +73,10 @@ public class UserController {
         String phone = map.get("phone").toString();
         String code = map.get("code").toString();
         //从session获取保存的验证码
-        Object codeInSession = session.getAttribute(phone);
+//        Object codeInSession = session.getAttribute(phone);
+        //从redis中获取缓存的验证码
+        Object codeInSession = redisTemplate.opsForValue().get(phone);
+
         //校验验证码是否正确
         if (codeInSession != null && codeInSession.equals(code)) {
             //若校验成功，则登录成功
@@ -81,6 +92,8 @@ public class UserController {
             }
             session.setAttribute("user",user.getId());
             BaseContext.setCurrentId(user.getId());
+            //如果用户登录成功，删除数据库中验证码
+            redisTemplate.delete(phone);
             return R.success(user);
         }
         //校验失败，返回错误

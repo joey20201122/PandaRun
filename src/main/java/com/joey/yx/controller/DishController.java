@@ -7,10 +7,12 @@ import com.joey.yx.pojo.Dish;
 import com.joey.yx.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +29,9 @@ public class DishController {
     @Autowired
     private DishService dishService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 新增菜品和菜品口味
      * @param dishDto
@@ -35,6 +40,11 @@ public class DishController {
     @PostMapping
     public R<String> save(@RequestBody DishDto dishDto){
         dishService.saveWithFlavor(dishDto);
+
+        //清理商户缓存数据
+        String key = "dish_" + dishDto.getBusinessId();
+        redisTemplate.delete(key);
+
         return R.success("新增菜品成功");
     }
 
@@ -69,6 +79,11 @@ public class DishController {
     @PutMapping
     public R<String> update(@RequestBody DishDto dishDto) {
         dishService.updateWithFlavor(dishDto);
+
+        //清理商户缓存数据
+        String key = "dish_" + dishDto.getBusinessId();
+        redisTemplate.delete(key);
+
         return R.success("");
     }
 
@@ -79,7 +94,15 @@ public class DishController {
      */
     @DeleteMapping
     public R<String> delete(Long[] ids){
+
+        //清理商户缓存数据
+        String key = "dish_" + dishService.getById(ids[0]).getBusinessId();
+        redisTemplate.delete(key);
+
+
         dishService.deleteWithFlavor(ids);
+
+
         return R.success("");
     }
 
@@ -102,7 +125,19 @@ public class DishController {
 
     @GetMapping("/list")
     public R<List> list (Dish dish){
-        List list = dishService.listWithFlavor(dish);
+        List<DishDto> list = null;
+
+        String key = "dish_" + dish.getBusinessId();
+        //先从redis中获取缓存
+        list = (List<DishDto>) redisTemplate.opsForValue().get(key);
+        if(list != null){
+            //若存在，则直接返回数据，无需查询数据库
+            return R.success(list);
+        }
+        //若不存在，查询数据库，将查询到的数据缓存到redis
+        list = dishService.listWithFlavor(dish);
+        //缓存
+        redisTemplate.opsForValue().set(key, list,15, TimeUnit.MINUTES);
 
         return R.success(list);
     }

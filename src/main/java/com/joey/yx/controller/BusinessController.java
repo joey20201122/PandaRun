@@ -7,9 +7,11 @@ import com.joey.yx.pojo.Business;
 import com.joey.yx.service.BusinessService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 86180
@@ -25,6 +27,9 @@ public class BusinessController {
     @Autowired
     private BusinessService businessService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 添加商户,添加商户月销表
      * @param business
@@ -33,6 +38,11 @@ public class BusinessController {
     @PostMapping
     public R<String> save(@RequestBody Business business){
         businessService.saveBusiness(business);
+
+        //
+        String key = "business_list";
+        redisTemplate.delete(key);
+
         return R.success("添加成功!");
     }
 
@@ -63,6 +73,11 @@ public class BusinessController {
     @DeleteMapping
     public R<String> deleteById(Long ids){
         businessService.deleteBusiness(ids);
+
+        //
+        String key = "business_list";
+        redisTemplate.delete(key);
+
         return R.success("商户删除成功");
     }
 
@@ -86,6 +101,9 @@ public class BusinessController {
     @PutMapping
     public R<String> update(@RequestBody Business business){
         if (businessService.updateById(business)) {
+            //
+            String key = "business_list";
+            redisTemplate.delete(key);
             return R.success("");
         }
         return R.error("修改失败!");
@@ -98,13 +116,27 @@ public class BusinessController {
      */
     @GetMapping("/list")
     public R<List<Business>> list(Business business) {
+        List<Business> businessList = null;
+
+        String key = "business_list";
+        //先从redis中获取缓存
+        businessList = (List<Business>) redisTemplate.opsForValue().get(key);
+        if(businessList != null){
+            //若存在，则直接返回数据，无需查询数据库
+            return R.success(businessList);
+        }
+
         LambdaQueryWrapper<Business> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.ne(Business::getId,1L);
         queryWrapper.eq(Business::getIsDeleted,0);
         queryWrapper.eq(Business::getStatus,1);
         queryWrapper.orderByDesc(Business::getSales);
         queryWrapper.orderByAsc(Business::getCreateTime);
-        return R.success(businessService.list(queryWrapper));
+        businessList = businessService.list(queryWrapper);
+
+        redisTemplate.opsForValue().set(key, businessList,15, TimeUnit.MINUTES);
+
+        return R.success(businessList);
     }
 
 
