@@ -44,4 +44,8 @@ public interface OrdersService extends IService<Orders> {
     Integer getAwaitTime(Long orderId);
 
     OrdersDto getDtoById(Long orderId);
+
+    Page getDtoPaegAll(int page, int pageSize, Long number, String beginTime, String endTime);
+
+    Page getDtoPageByBusinessId(int page, int pageSize, Long number, String beginTime, String endTime, Long businessId);
 }

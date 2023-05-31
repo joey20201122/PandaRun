@@ -188,25 +188,9 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         ordersLambdaQueryWrapper.orderByAsc(Orders::getExpectedTime);
         //分页
         page(ordersPage,ordersLambdaQueryWrapper);
-        //声明dto分页器
-        Page<OrdersDto> ordersDtoPage = new Page<>(page, pageSize);
-        //dto分页器拷贝order分页器
-        BeanUtils.copyProperties(ordersPage, ordersDtoPage);
-        //重新封装records，更换为dto
-        List<OrdersDto> ordersDtos = ordersDtoPage.getRecords().stream().map((Orders order) -> {
-            //将details封装如dto
-            OrdersDto ordersDto = new OrdersDto();
-            BeanUtils.copyProperties(order, ordersDto);
-            LambdaQueryWrapper<OrderDetail> orderDetailLambdaQueryWrapper = new LambdaQueryWrapper<>();
-            orderDetailLambdaQueryWrapper.eq(OrderDetail::getOrderId, order.getId());
-            List<OrderDetail> orderDetails = orderDetailService.list(orderDetailLambdaQueryWrapper);
-            ordersDto.setOrderDetails(orderDetails);
-            return ordersDto;
-        }).collect(Collectors.toList());
-        //设置details
-        ordersDtoPage.setRecords(ordersDtos);
 
-        return ordersDtoPage;
+        return packageDtoPage(ordersPage);
+
     }
 
     @Override
@@ -362,5 +346,56 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         dto.setOrderDetails(orderDetailList);
 
         return dto;
+    }
+
+    @Override
+    public Page getDtoPaegAll(int page, int pageSize, Long number, String beginTime, String endTime) {
+        Page<Orders> ordersPage = new Page<>(page, pageSize);
+        LambdaQueryWrapper<Orders> ordersLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        ordersLambdaQueryWrapper.eq(number!=null,Orders::getId,number);
+        ordersLambdaQueryWrapper.gt(beginTime!=null,Orders::getCreateTime,beginTime);
+        ordersLambdaQueryWrapper.lt(endTime!=null,Orders::getCreateTime,endTime);
+        ordersLambdaQueryWrapper.orderByDesc(Orders::getCreateTime);
+        page(ordersPage,ordersLambdaQueryWrapper);
+
+        return packageDtoPage(ordersPage);
+    }
+
+    @Override
+    public Page getDtoPageByBusinessId(int page, int pageSize, Long number, String beginTime, String endTime, Long businessId) {
+        Page<Orders> ordersPage = new Page<>(page, pageSize);
+        LambdaQueryWrapper<Orders> ordersLambdaQueryWrapper = new LambdaQueryWrapper<>();
+
+        ordersLambdaQueryWrapper.eq(Orders::getBusinessId,businessId);
+        ordersLambdaQueryWrapper.eq(number!=null,Orders::getId,number);
+        ordersLambdaQueryWrapper.gt(beginTime!=null,Orders::getCreateTime,beginTime);
+        ordersLambdaQueryWrapper.lt(endTime!=null,Orders::getCreateTime,endTime);
+        ordersLambdaQueryWrapper.orderByDesc(Orders::getCreateTime);
+
+        page(ordersPage,ordersLambdaQueryWrapper);
+
+        return packageDtoPage(ordersPage);
+    }
+
+    private Page packageDtoPage(Page<Orders> ordersPage){
+        //声明dto分页器
+        Page<OrdersDto> ordersDtoPage = new Page<OrdersDto>(ordersPage.getCurrent(), ordersPage.getSize());
+        //dto分页器拷贝order分页器
+        BeanUtils.copyProperties(ordersPage, ordersDtoPage);
+        //重新封装records，更换为dto
+        List<OrdersDto> ordersDtos = ordersDtoPage.getRecords().stream().map((Orders order) -> {
+            //将details封装如dto
+            OrdersDto ordersDto = new OrdersDto();
+            BeanUtils.copyProperties(order, ordersDto);
+            LambdaQueryWrapper<OrderDetail> orderDetailLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            orderDetailLambdaQueryWrapper.eq(OrderDetail::getOrderId, order.getId());
+            List<OrderDetail> orderDetails = orderDetailService.list(orderDetailLambdaQueryWrapper);
+            ordersDto.setOrderDetails(orderDetails);
+            return ordersDto;
+        }).collect(Collectors.toList());
+        //设置details
+        ordersDtoPage.setRecords(ordersDtos);
+
+        return ordersDtoPage;
     }
 }

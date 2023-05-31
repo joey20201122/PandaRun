@@ -102,13 +102,9 @@ public class OrderController {
     @GetMapping("/page")
     public R<Page> page(int page, int pageSize, Long number, String beginTime, String endTime){
 
-        Page<Orders> ordersPage = new Page<>(page, pageSize);
-        LambdaQueryWrapper<Orders> ordersLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        ordersLambdaQueryWrapper.eq(number!=null,Orders::getId,number);
-        ordersLambdaQueryWrapper.gt(beginTime!=null,Orders::getCreateTime,beginTime);
-        ordersLambdaQueryWrapper.lt(endTime!=null,Orders::getCreateTime,endTime);
-        ordersLambdaQueryWrapper.orderByDesc(Orders::getCreateTime);
-        return R.success(orderService.page(ordersPage,ordersLambdaQueryWrapper));
+
+
+        return R.success(orderService.getDtoPaegAll(page ,pageSize ,number ,beginTime ,endTime));
 
     }
 
@@ -129,17 +125,8 @@ public class OrderController {
     //商户获取orderPage
     @GetMapping("/pageType")
     public R<Page> page(int page, int pageSize, Long number, String beginTime, String endTime,Long businessId){
-        Page<Orders> ordersPage = new Page<>(page, pageSize);
-        LambdaQueryWrapper<Orders> ordersLambdaQueryWrapper = new LambdaQueryWrapper<>();
 
-        ordersLambdaQueryWrapper.eq(Orders::getBusinessId,businessId);
-        ordersLambdaQueryWrapper.eq(number!=null,Orders::getId,number);
-        ordersLambdaQueryWrapper.gt(beginTime!=null,Orders::getCreateTime,beginTime);
-        ordersLambdaQueryWrapper.lt(endTime!=null,Orders::getCreateTime,endTime);
-        ordersLambdaQueryWrapper.orderByDesc(Orders::getCreateTime);
-
-        orderService.page(ordersPage,ordersLambdaQueryWrapper);
-        return R.success(ordersPage);
+        return R.success(orderService.getDtoPageByBusinessId(page,pageSize,number,beginTime,endTime,businessId));
 
     }
 
