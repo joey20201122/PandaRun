@@ -4,7 +4,7 @@ function categoryListApi() {
       'url': '/business/list',
       'method': 'get',
     })
-  }
+}
 
 //获取商户下的菜品列表
 function dishListApi(data) {
@@ -50,7 +50,7 @@ function clearCartApi() {
     })
 }
 
-//删除购物车的商品
+//获取做菜时间
 function getMakeTimeApi() {
     return $axios({
         'url': '/user/makeTime',
@@ -58,11 +58,30 @@ function getMakeTimeApi() {
     })
 }
 
+//获取收藏列表
+function collectionListApi() {
+    return $axios({
+        'url': '/collection/list',
+        'method': 'get',
+    })
+}
 
+//收藏夹中添加商品
+function  addCollectionApi(data){
+    return $axios({
+        'url': '/collection',
+        'method': 'post',
+        data
+    })
+}
 
-
-
-
+//收藏夹中删除商品
+function  deleteCollectionApi(id){
+    return $axios({
+        url: `/collection/${id}`,
+        method: 'delete',
+    })
+}
 
 
 

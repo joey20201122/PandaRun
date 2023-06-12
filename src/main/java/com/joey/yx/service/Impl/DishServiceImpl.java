@@ -3,6 +3,7 @@ package com.joey.yx.service.Impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.joey.yx.common.BaseContext;
 import com.joey.yx.dto.DishDto;
 import com.joey.yx.mapeer.DishMapper;
 import com.joey.yx.pojo.Dish;
@@ -43,7 +44,6 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
     public void saveWithFlavor(DishDto dishDto) {
 
 
-//        dishDto.setBusinessName(businessService.getBusinessName(dishDto.getBusinessId()));
         save(dishDto);
         Long dishId = dishDto.getId();
 
@@ -151,4 +151,13 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
         return dishDtoList;
     }
+
+    @Override
+    public List getCollectionDishDto() {
+        Long userId = BaseContext.getCurrentId();
+
+        return null;
+    }
+
+
 }

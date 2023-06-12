@@ -160,3 +160,126 @@
   transform: translate(-50%, 0);
   width: 334rem;
 }
+
+
+#address .divCollection {
+  height: calc(100vh - 157rem);
+  overflow: auto;
+}
+
+#address .divCollection .divItem {
+  margin: 10rem 15rem 20rem 14rem;
+  display: flex;
+}
+
+#address .divCollection .divItem .el-image {
+  width: 86rem;
+  height: 86rem;
+  margin-right: 14rem;
+}
+
+#address .divCollection .divItem .el-image img {
+  width: 86rem;
+  height: 86rem;
+  border-radius: 5rem;
+}
+
+#address .divCollection .divItem >div {
+  position: relative;
+}
+
+#address .divCollection .divItem .divName {
+  height: 22rem;
+  opacity: 1;
+  font-size: 16rem;
+  font-family: PingFangSC, PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: left;
+  color: #333333;
+  line-height: 22rem;
+  letter-spacing: 0;
+  margin-bottom: 5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 175rem;
+}
+
+#address .divCollection .divItem .divDesc {
+  height: 16rem;
+  opacity: 1;
+  font-size: 12rem;
+  font-family: PingFangSC, PingFangSC-Regular;
+  font-weight: 400;
+  text-align: left;
+  color: #666666;
+  line-height: 16rem;
+  letter-spacing: 0rem;
+  margin-bottom: 4rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 144rem;
+}
+
+#address .divCollection .divItem .divPrice {
+  font-size: 15rem;
+  font-family: DIN, DIN-Medium;
+  font-weight: 500;
+  text-align: left;
+  color: #e94e3c;
+  line-height: 20rem;
+  letter-spacing: 0rem;
+}
+
+#address .divCollection .divItem .divPrice span:first-child{
+  font-size: 12rem;
+}
+
+#address .divCollection .divItem .divPrice span:last-child{
+  font-size: 12rem;
+}
+
+
+#address .divCollection .divItem .divNum {
+  display: block;
+  /*position: absolute;*/
+  right: 12rem;
+  bottom: 0px;
+}
+
+#address .divCollection .divItem .divNum .divSub {
+  width: 64rem;
+  height: 24rem;
+  opacity: 1;
+  background: rgba(255, 194, 0, 0.5);
+  border-radius: 12rem;
+  font-size: 12rem;
+  font-family: PingFangSC, PingFangSC-Regular;
+  font-weight: 500;
+  text-align: center;
+  color: #333333;
+  line-height: 24rem;
+  letter-spacing: 0;
+  margin-bottom: 0;
+  margin-right: 0;
+}
+
+#address .divCollection .divItem .divNum .divTypes {
+  width: 64rem;
+  height: 24rem;
+  opacity: 1;
+  background: #ffc200;
+  border-radius: 12rem;
+  font-size: 12rem;
+  font-family: PingFangSC, PingFangSC-Regular;
+  font-weight: 500;
+  text-align: center;
+  color: #333333;
+  line-height: 24rem;
+  letter-spacing: 0;
+  margin-bottom: 0px;
+  margin-right: 0;
+  bottom: 0px;
+  position: absolute;
+}

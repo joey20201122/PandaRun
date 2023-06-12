@@ -179,6 +179,17 @@
                 <div class="divAdd" v-else>
                   <img src="./images/add.png" @click="addCart(detailsDialog.item)"/>
                 </div>
+                <div class="divCollection" style="font-size: 36px"
+                     @click="deleteCollection(detailsDialog.item)"
+                     v-if="isCollected(detailsDialog.item.id)"  >
+                    <i class="el-icon-star-on" ></i>
+                </div>
+                <div class="divCollection" style="font-size: 36px"
+                     @click="addCollection(detailsDialog.item)"
+                     v-else>
+                    <i class="el-icon-star-off" ></i>
+                </div>
+
             </div>
           </div>
           <div class="detailsDialogClose" @click="detailsDialog.show = false">
@@ -271,6 +282,7 @@
                 show:false,
                 item:{}
               },
+              collectionList:[],
             }
           },
           computed:{
@@ -331,6 +343,8 @@
                 }
                 //清空购物车
                 this.clearCart()
+                //获取收藏列表
+                this.getCollectionList()
               })
             },
 
@@ -606,7 +620,52 @@
               this.detailsDialog.show = true
 
 
-            }
+            },
+            //判断是否被收藏了
+            isCollected(id){
+                let x = false
+                this.collectionList.forEach((item) => {
+                    if (item === id) {
+                        x = true
+                    }
+                })
+                return x
+            },
+            //添加收藏
+            async addCollection(item) {
+                const res = await addCollectionApi(item)
+                if (res.code === 1) {
+                    await this.getCollectionList()
+                    this.$notify({type: 'success', message: res.msg});
+                } else {
+                    this.$notify({type: 'warning', message: res.msg});
+                }
+            },
+            //删除收藏
+            async deleteCollection(item) {
+                const res = await deleteCollectionApi(item.id)
+                if (res.code === 1) {
+                    await this.getCollectionList()
+                    this.$notify({type: 'success', message: res.msg});
+                } else {
+                    this.$notify({type: 'warning', message: res.msg});
+                }
+            },
+            //获取收藏列表
+            async getCollectionList() {
+                const res = await collectionListApi()
+                if (res.code === 1) {
+                    let list = []
+                    let temp = res.data
+                    temp.forEach((item)=>{
+                        list.push(item.dishId)
+                    })
+                    this.collectionList = list
+                    this.$notify({type: 'success', message: res.msg});
+                } else {
+                    this.$notify({type: 'warning', message: res.msg});
+                }
+            },
 
           }
       })

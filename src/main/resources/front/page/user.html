@@ -44,7 +44,7 @@
                 </div>
                 <div class="divSplit"></div>
 
-                <div class="item" @click="toAddressPage">
+                <div class="item" @click="toCollectionPage">
                     <img src="./../images/orders.png"/>
                     <span>我的收藏</span>
                     <i class="el-icon-arrow-right"></i>
@@ -175,6 +175,11 @@
                     window.requestAnimationFrame(()=>{
                         window.location.href = '/front/page/order.html'
                     }) 
+                },
+                toCollectionPage(){
+                    window.requestAnimationFrame(()=>{
+                        window.location.href = '/front/page/collection.html'
+                    })
                 },
                 initData(){
                     this.getLatestOrder()

@@ -26,4 +26,6 @@ public interface DishService extends IService<Dish> {
     public void deleteWithFlavor(Long[] ids);
 
     public List listWithFlavor(Dish dish);
+
+    public List getCollectionDishDto();
 }

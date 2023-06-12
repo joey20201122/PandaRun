@@ -228,7 +228,7 @@ public class DaySalesServiceImpl extends ServiceImpl<DaySalesMapper, DaySales> i
             if (map.containsKey(daySales.getBusinessId())){
                 BusinessMonthsales businessMonthsales = map.get(daySales.getBusinessId());
                 businessMonthsales.setSale(businessMonthsales.getSale()+daySales.getSale());
-                businessMonthsales.setTurnover(businessMonthsales.getTurnover()+daySales.getSale()*daySales.getPrice());
+                businessMonthsales.setTurnover(businessMonthsales.getTurnover()+daySales.getSale()*daySales.getPrice()*100);
             }
         });
         //businessMonthsalesList数据清零，将map中数据再放回list
