@@ -198,7 +198,7 @@ public class DaySalesServiceImpl extends ServiceImpl<DaySalesMapper, DaySales> i
         businessMonthsalesLambdaQueryWrapper.orderByDesc(BusinessMonthsales::getSale);
         businessMonthsalesService.page(businessMonthsalesPage,businessMonthsalesLambdaQueryWrapper);
 
-        return businessMonthsalesPage;
+         return businessMonthsalesPage;
     }
 
     @Override

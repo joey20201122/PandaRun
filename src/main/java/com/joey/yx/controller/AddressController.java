@@ -50,7 +50,7 @@ public class AddressController {
         //初始化数据 TODO 优化阶段删掉
         address.setBuilding("七号楼");
         address.setDormitory("335");
-        address.setDetail(address.getBuilding()+":"+address.getDormitory()+"号");
+//        address.setDetail(address.getBuilding()+":"+address.getDormitory()+"号");
 
         addressService.save(address);
         return R.success(address);
@@ -62,7 +62,7 @@ public class AddressController {
     @PutMapping
     public R<Address> update(@RequestBody Address address) {
         address.setUserId(BaseContext.getCurrentId());
-        address.setDetail(address.getBuilding()+":"+address.getDormitory()+"号");
+//        address.setDetail(address.getBuilding()+":"+address.getDormitory()+"号");
         addressService.updateById(address);
         return R.success(address);
     }

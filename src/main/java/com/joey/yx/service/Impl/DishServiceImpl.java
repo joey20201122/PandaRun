@@ -134,6 +134,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         LambdaQueryWrapper<Dish> lqw = new LambdaQueryWrapper<>();
         lqw.eq(dish.getBusinessId() != null,Dish::getBusinessId,dish.getBusinessId());
         lqw.like(dish.getName()!=null,Dish::getName,dish.getName());
+        lqw.eq(Dish::getIsDeleted,0);
         lqw.eq(Dish::getStatus,1);
         lqw.orderByDesc(Dish::getSales);
         lqw.orderByAsc(Dish::getCreateTime);

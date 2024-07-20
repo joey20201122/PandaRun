@@ -52,6 +52,10 @@ public class EmployeeController {
         if (!realEmployee.getPassword().equals(password)){
             return R.error("登陆失败!用户名或密码错误");
         }
+        //6.查询此账户是否被删除，若删除，返回错误
+        if (realEmployee.getIsDeleted()==1){
+            return R.error("登陆失败!此账户已被删除");
+        }
         //6.查询此账户是否被禁用，若禁用，返回错误
         if (realEmployee.getStatus()!=1){
             return R.error("登陆失败!此账户已被禁用");
@@ -100,7 +104,7 @@ public class EmployeeController {
      * @date  10:37
     */
     @GetMapping("/page")
-    public R<Page> page(int page , int pageSize , String name){
+    public R<Page> page(HttpServletRequest request,int page , int pageSize , String name){
         //新建分页查询对象
         Page<Employee> employeePage = new Page<>(page, pageSize);
         //查询条件

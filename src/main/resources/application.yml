@@ -1,5 +1,7 @@
 server:
   port: 12345
+  tomcat:
+    max-http-form-post-size: 8096
 spring:
 
   application:
@@ -60,4 +62,4 @@ mybatis-plus:
       id-type: ASSIGN_ID
 
 yx:
-  path: E:\webResources\
+  path: /resources/pic
